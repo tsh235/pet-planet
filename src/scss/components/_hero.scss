@@ -1,0 +1,135 @@
+@use "../variables" as *;
+@use "../media" as *;
+
+.hero {
+  background-size: contain, cover;
+  background-position: right bottom, center;
+  background-repeat: no-repeat;
+  color: $light;
+
+  &_index {
+    padding: 218px 0 119px;
+    background-color: $purple;
+    background-image: url("/img/bg-dog.png"), url("/img/pattern.svg");
+
+    @include bigscreen {
+      background-image: url("/img/bg-dog@2x.png"), url("/img/pattern.svg");
+    }
+  
+    @include laptop {
+      padding: 148px 0 72px;
+    }
+  
+    @include tablet {
+      padding: 108px 0 361px;
+      background-image: url("/img/bg-dog-tablet.png"), url("/img/pattern.svg");
+      background-size: 655px 564px, cover;
+    }
+  
+    @include mobile {
+      padding: 100px 0 282px;
+      background-image: url("/img/bg-dog-mobile.png"), url("/img/pattern.svg");
+      background-size: 294px 261px, cover;
+    }
+  }
+
+  &_store {
+    padding: 218px 0 90px;
+    background-color: $green;
+    background-image: url("/img/bg-cat.png"), url("/img/pattern.svg");
+    background-size: 839px auto, cover;
+    background-position: right -47px bottom, center;
+
+    @include bigscreen {
+      background-image: url("/img/bg-cat@2x.png"), url("/img/pattern.svg");
+    }
+  
+    @include laptop {
+      padding: 148px 0 72px;
+      background-size: 700px auto, cover;
+    }
+  
+    @include tablet {
+      padding: 108px 0 340px;
+      background-size: 655px auto, cover;
+    }
+  
+    @include mobile {
+      padding: 100px 0 282px;
+      background-size: 500px auto, cover;
+      background-position: right -47px bottom -16px, center;
+    }
+  }
+
+  &__title {
+    margin-bottom: 50px;
+    width: 810px;
+    max-width: 100%;
+
+    @media (max-width: 1300px) {
+      width: 670px;
+    }
+
+    @include laptop {
+      margin-bottom: 32px;
+      width: 588px;
+    }
+
+    @include mobile {
+      margin-bottom: 16px;
+    }
+  }
+
+  &__tagline {
+    max-width: 420px;
+
+    @include bigscreen {
+      max-width: 540px;
+    }
+
+    @include mobile {
+      max-width: 300px;
+    }
+  }
+
+  &__store-link {
+    margin-top: 60px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    width: max-content;
+    padding: 15px 24px;
+    background-color: $green;
+    border: 1px solid transparent;
+    border-radius: 40px;
+    font-weight: 700;
+    color: $light;
+    outline: none;
+
+    @include laptop {
+      margin-top: 40px;
+    }
+
+    @include mobile {
+      margin-top: 20px;
+    }
+
+    &:hover {
+      background-color: #00772f;
+    }
+    
+    &:focus-visible {
+      background-color: $green;
+      border: 1px solid $carrot;
+    }
+
+    &::after {
+      content: "";
+      display: block;
+      width: 16px;
+      height: 16px;
+      background: url("/img/arrow-up.svg") no-repeat center/contain;
+    }
+  }
+}

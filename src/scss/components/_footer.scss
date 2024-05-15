@@ -1,0 +1,113 @@
+@use '../variables' as *;
+@use '../media' as *;
+
+.footer {
+  padding: 80px 0 32px;
+  background-color: $green;
+  background-image: url('/img/footer-bg.svg');
+  background-repeat: no-repeat;
+  background-position: left 41vw bottom -75px;
+  color: $light;
+
+  @include laptop {
+    padding-top: 50px;
+    background-image: url('/img/footer-bg-laptop.svg');
+  }
+  @include tablet {
+    padding-top: 40px;
+    background-image: url('/img/footer-bg-tablet.svg');
+    background-position: right 46px bottom -45px;
+  }
+  @include mobile {
+    padding: 30px 0 24px;
+    background-image: url('/img/footer-bg-mobile.svg');
+    background-position: right -30px bottom -30px;
+  }
+
+  &__container {
+    display: grid;
+    grid-template-areas: 
+    'logo contacts'
+    'info contacts';
+    gap: 50px;
+
+    @include tablet {
+      gap: 80px;
+    }
+    @include mobile {
+      grid-template-areas: 
+      'logo'
+      'contacts'
+      'info';
+      gap: 0;
+    }
+  }
+  
+  &__link {
+    display: inline-block;
+    width: fit-content;
+    outline: none;
+  }
+
+  &__logo {
+    grid-area: logo;
+    width: 331px;
+    
+    @include tablet {
+      width: 200px;
+    }
+    @include mobile {
+      margin-bottom: 32px;
+    }
+  }
+
+  &__info {
+    grid-area: info;
+    font-size: 16px;
+
+    @include mobile {
+      margin-top: 68px;
+      font-size: 12px;
+    }
+  }
+
+  &__copyright {
+    margin-bottom: 16px;
+
+    @include mobile {
+      margin-bottom: 12px;
+    }
+  }
+
+  &__text {
+    margin-bottom: 4px;
+  }
+
+  &__developer:not(:last-child) {
+    margin-bottom: 4px;
+  }
+
+  &__link:hover {
+    color: $carrot;
+  }
+
+  &__contacts {
+    grid-area: contacts;
+    justify-self: end;
+
+    @include mobile {
+      justify-self: start;
+    }
+  }
+
+  &__email {
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+
+  &__social-list {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}
