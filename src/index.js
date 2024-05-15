@@ -27,7 +27,7 @@ const renderProducts = (products) => {
   storeList.append(...productCards);
 };
 
-const fetchProductByCategory = async (category) => {
+const fetchProduct = async (category) => {
   try {
     const url = category ? `category/${category}` : '';
     const response = await fetch(`${API_URL}/api/products/${url}`);
@@ -43,9 +43,29 @@ const fetchProductByCategory = async (category) => {
   }
 };
 
-fetchProductByCategory();
+fetchProduct();
 
 const categoryBtns = document.querySelectorAll('.store__categories-btn');
+const storeTitle = document.querySelector('.store__title');
+
+const changeTitle = category => {
+  storeTitle.textContent = '';
+  
+  switch(category) {
+    case 'Домики':
+      storeTitle.textContent = 'Каталог домиков'
+      break
+    case 'Лежанки':
+      storeTitle.textContent = 'Каталог лежанок'
+      break
+    case 'Игрушки':
+      storeTitle.textContent = 'Каталог игрушек'
+      break
+    case 'Корма':
+      storeTitle.textContent = 'Каталог кормов'
+      break
+  }
+};
 
 const changeActiveBtn = ({target}) => {
   categoryBtns.forEach(btn => {
@@ -53,7 +73,9 @@ const changeActiveBtn = ({target}) => {
   });
 
   target.classList.add('store__categories-btn_active');
-  fetchProductByCategory(target.textContent);
+  const category = target.dataset.category;
+  changeTitle(category);
+  fetchProduct(category);
 };
 
 categoryBtns.forEach(btn => {
