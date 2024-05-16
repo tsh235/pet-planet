@@ -51,7 +51,7 @@
               </li>
             </ul>
   
-            <button class="store__cart-btn" aria-label="Корзина товаров">
+            <button class="store__cart-btn" aria-label="Корзина товаров" type="button">
               <span class="store__cart-count">0</span>
               <svg class="store__cart-icon" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
                 <path d="M23.2867 10.4534C22.505 9.59003 21.3267 9.08836 19.6934 8.91336V8.02669C19.6934 6.42836 19.0167 4.88836 17.8267 3.81503C16.625 2.71836 15.0617 2.20503 13.44 2.35669C10.6517 2.62503 8.3067 5.32003 8.3067 8.23669V8.91336C6.67336 9.08836 5.49503 9.59003 4.71336 10.4534C3.5817 11.7134 3.6167 13.3934 3.74503 14.56L4.5617 21.0584C4.8067 23.3334 5.72836 25.6667 10.745 25.6667H17.255C22.2717 25.6667 23.1934 23.3334 23.4384 21.07L24.255 14.5484C24.3834 13.3934 24.4067 11.7134 23.2867 10.4534ZM13.6034 3.97836C14.77 3.87336 15.8784 4.23503 16.7417 5.01669C17.5934 5.78669 18.0717 6.88336 18.0717 8.02669V8.84336H9.92836V8.23669C9.92836 6.16003 11.6434 4.16503 13.6034 3.97836Z" fill="currentColor"/>
@@ -110,5 +110,50 @@
         </address>
       </div>
     </footer>
+
+    <div class="modal-overlay">
+      <div class="modal">
+        <div class="modal__content">
+          <h2 class="modal__title">Корзина</h2>
+          <ul class="modal__cart-list">
+            <li class="modal__cart-item"></li>
+            <li class="modal__cart-item"></li>
+            <li class="modal__cart-item"></li>
+            <li class="modal__cart-item"></li>
+          </ul>
+
+          <div class="modal__pickup">
+            <h3 class="modal__pickup-title">Самовывоз из магазина:</h3>
+            <ul class="modal__pickup-list">
+              <li class="modal__pickup-item">
+                <label class="modal__pickup-label">
+                  ул. Адамавая 45/1
+                  <input class="modal__pickup-radio" type="radio" name="pickup">
+                </label>
+              </li>
+              <li class="modal__pickup-item">
+                <label class="modal__pickup-label">
+                  ул. Вишневая 74
+                  <input class="modal__pickup-radio" type="radio" name="pickup" checked>
+                </label>
+              </li>
+              <li class="modal__pickup-item">
+                <label class="modal__pickup-label">
+                  ул. Чехова 106/28
+                  <input class="modal__pickup-radio" type="radio" name="pickup">
+                </label>
+              </li>
+            </ul>
+          </div>
+
+          <div class="modal__footer">
+            <button class="modal__cart-submit">Заказать</button>
+            <p class="modal__cart-total-price">12 900&nbsp;₽</p>
+          </div>
+        </div>
+      </div>
+
+      <button class="modal-overlay__close-btn">&times;</button>
+    </div>
   </body>
 </html>
