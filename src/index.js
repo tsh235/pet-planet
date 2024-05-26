@@ -8,8 +8,27 @@ const cartCount = cartBtn.querySelector('.store__cart-count');
 const modalОverlay = document.querySelector('.modal-overlay');
 const cartList = modalОverlay.querySelector('.modal__cart-list');
 const modalCloseBtn = modalОverlay.querySelector('.modal-overlay__close-btn');
+const modalSubmit = modalОverlay.querySelector('.modal__cart-submit');
+const cartTotalPrice = document.querySelector('.modal__cart-total-price');
+const cartForm = document.querySelector('.modal__pickup');
 
-const createProductCard = ({name, photoUrl, price}) => {
+const orderMessageElem = document.createElement('div');
+orderMessageElem.classList.add('order-message');
+
+const orderMessageText = document.createElement('p');
+orderMessageText.classList.add('order-message__text');
+
+const orderMessageBtn = document.createElement('button');
+orderMessageBtn.classList.add('order-message__btn');
+orderMessageBtn.textContent = 'Закрыть';
+
+orderMessageElem.append(orderMessageText, orderMessageBtn);
+
+orderMessageBtn.addEventListener('click', () => {
+  orderMessageElem.remove();
+});
+
+const createProductCard = ({id, name, photoUrl, price}) => {
   const li = document.createElement('li');
   li.classList.add('store__item');
   li.insertAdjacentHTML('beforeend', `
@@ -17,7 +36,7 @@ const createProductCard = ({name, photoUrl, price}) => {
       <img class="product__img" src="${API_URL}${photoUrl}" alt="${name}" width="388" height="261">
       <h3 class="product__title">${name}</h3>
       <p class="product__price">${price}&nbsp;₽</p>
-      <button class="product__btn-add-cart">Заказать</button>
+      <button class="product__btn-add-cart" data-id="${id}">Заказать</button>
     </article>
   `);
 
@@ -47,8 +66,24 @@ const fetchProduct = async category => {
     renderProducts(products);
   } catch (error) {
     console.error(`Ошибка запроса товаров: ${error}`);
+    return [];
   }
 };
+
+const fetchCartProducts = async (ids) => {
+  try {
+    const response = await fetch(`${API_URL}/api/products/list/${ids.join(',')}`);
+
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Ошибка запроса товаров для карзины: ${error}`);
+    return [];
+  }
+}
 
 const changeTitle = category => {
   storeTitle.textContent = '';
@@ -85,28 +120,62 @@ categoryBtns.forEach(btn => {
   btn.addEventListener('click', changeCategory);
 });
 
-const renderCartList = () => {
-  cartList.textContent = '';
-  const products = JSON.parse(localStorage.getItem('petPlanet') || '[]');
-  console.log('products.length: ', !products.length);
+const calculateTotalPrice = (cartItems, cartProducts) =>
+  cartItems.reduce((acc, item) => {
+    const product = cartProducts.find(prod => prod.id === item.id);
+    return acc + product.price * item.count;
+  }, 0);
 
-  if (!products.length) {
-    const li = document.createElement('li');
-    li.classList.add('modal__cart-item-empty');
-    li.textContent = 'Вы забыли выбрать товары';
-    cartList.append(li);
-    return;
-  }
-  
-  const productsList = products.map(product => {
+const renderCartItems = () => {
+  const cartItems = JSON.parse(localStorage.getItem('petPlanet') || '[]');
+  const cartProducts = JSON.parse(localStorage.getItem('cartProducts') || '[]');
+
+  const productsList = cartProducts.map(({id, name, price, photoUrl}) => {
+    const cartItem = cartItems.find(item => item.id === id);
+    if (!cartItem) return;
+
     const li = document.createElement('li');
     li.classList.add('modal__cart-item');
-    li.textContent = product;
+
+    li.insertAdjacentHTML('beforeend', `
+      <img class="modal__cart-img" src="${API_URL}${photoUrl}" alt="${name}">
+      <h3 class="modal__cart-title">${name}</h3>
+      <div class="modal__cart-count-block">
+        <button class="modal__count-btn modal__count-minus" data-id="${id}">-</button>
+        <span class="modal__cart-count">${cartItem.count}</span>
+        <button class="modal__count-btn modal__count-plus" data-id="${id}">+</button>
+      </div>
+      <p class="modal__cart-price">${price * cartItem.count}&nbsp;₽</p>
+    `);
     return li;
   });
 
+  const totalPrice = calculateTotalPrice(cartItems, cartProducts);
+  cartTotalPrice.innerHTML = `${totalPrice}&nbsp;₽`;
+
+  return productsList;
+}
+
+const renderCartList = async () => {
+  cartList.textContent = '';
+  const data = JSON.parse(localStorage.getItem('petPlanet') || '[]');
+  const ids = data.map(item => item.id);
+
+  if (!data.length) {
+    const li = document.createElement('li');
+    li.classList.add('modal__cart-item-empty');
+    li.textContent = 'Товары для заказа не выбраны';
+    cartList.append(li);
+    modalSubmit.style.pointerEvents = 'none';
+    return;
+  }
+
+  modalSubmit.style.pointerEvents = '';
+  const products = await fetchCartProducts(ids);
+  localStorage.setItem('cartProducts', JSON.stringify(products));
+
+  const productsList = renderCartItems();
   cartList.append(...productsList);
-  return cartList;
 };
 
 cartBtn.addEventListener('click', () => {
@@ -125,22 +194,96 @@ const updateCartCount = () => {
   cartCount.textContent = cartItems.length;
 }
 
-const addToCart = (productName) => {
+const addToCart = (productId) => {
   const cartItems = JSON.parse(localStorage.getItem('petPlanet') || '[]');
-  cartItems.push(productName);
+
+  const existingItem = cartItems.find((item) => item.id === productId);
+  if (existingItem) {
+    existingItem.count +=1;
+  } else {
+    cartItems.push({id: productId, count: 1});
+  }
+
   localStorage.setItem('petPlanet', JSON.stringify(cartItems));
-  
-  console.log('cartItems: ', cartItems);
   updateCartCount();
 };
 
 storeList.addEventListener('click', ({target}) => {
   if (target.closest('.product__btn-add-cart')) {
-    const productCard = target.closest('.store__product');
-    const productName = productCard.querySelector('.product__title').textContent;
-    addToCart(productName);
+    const productId = target.dataset.id;
+    addToCart(productId);
   }
 });
+
+const updateCartItem = (productId, change) => {
+  console.log('productId: ', productId);
+  const cartItems = JSON.parse(localStorage.getItem('petPlanet') || '[]');
+  const itemIndex = cartItems.findIndex(item => item.id === productId);
+
+  if (itemIndex !== -1) {
+    cartItems[itemIndex].count += change;
+
+    if (cartItems[itemIndex].count <= 0) {
+      cartItems.splice(itemIndex, 1);
+    }
+
+    localStorage.setItem('petPlanet', JSON.stringify(cartItems));
+
+    renderCartList();
+    updateCartCount();
+  }
+};
+
+cartList.addEventListener('click', ({target}) => {
+  if (target.classList.contains('modal__count-minus')) {
+    const productId = target.dataset.id;
+    updateCartItem(productId, -1);
+  }
+
+  if (target.classList.contains('modal__count-plus')) {
+    const productId = target.dataset.id;
+    updateCartItem(productId, 1);
+  }
+});
+
+const submitOrder = async e => {
+  e.preventDefault();
+
+  const storeId = cartForm.pickup.value;
+  const cartItems = JSON.parse(localStorage.getItem('petPlanet') || '[]');
+  const products = cartItems.map(({id, count}) => ({id, quantity: count}));
+
+  try {
+    const response = await fetch(`${API_URL}/api/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({storeId, products}),
+    });
+
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+
+    
+    const {orderId} = await response.json();
+    const date = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+    orderMessageText.textContent = `Ваш заказ оформлен. Номер заказа ${orderId}. Вы можете его забрать ${date.toLocaleDateString()} после 12:00.`
+    
+    localStorage.removeItem('petPlanet');
+    localStorage.removeItem('cartProducts');
+
+    updateCartCount();
+
+    modalОverlay.style.display = 'none';
+    document.body.append(orderMessageElem);
+  } catch (error) {
+    console.log(`Ошибка оформления заказа: ${error}`);
+  }
+};
+
+cartForm.addEventListener('submit', submitOrder);
 
 updateCartCount();
 fetchProduct();
